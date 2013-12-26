@@ -36,6 +36,7 @@ ApplicationWindow {
                 }
                 TextField {
                     id: key
+                    objectName: "key"
                     Layout.fillWidth: true
                     anchors.leftMargin: 4
                     anchors.rightMargin: 4
@@ -46,6 +47,7 @@ ApplicationWindow {
                 }
                 TextField {
                     id: iv
+                    objectName: "iv"
                     Layout.fillWidth: true
                     anchors.leftMargin: 4
                     anchors.rightMargin: 4
@@ -64,22 +66,26 @@ ApplicationWindow {
                 TextArea {
                     wrapMode: TextEdit.WordWrap
                     id: text
+                    objectName: "text"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
                 TextArea {
                     id: cypherText
+                    objectName: "cypherText"
                     wrapMode: TextEdit.WordWrap
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
                 Button {
                     id: crypt
+                    objectName: "crypt"
                     text: "Crypt"
                     Layout.fillWidth: true
                 }
                 Button {
                     id: decrypt
+                    objectName: "decrypt"
                     text: "Decrypt"
                     Layout.fillWidth: true
                 }

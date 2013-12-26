@@ -2,6 +2,8 @@ QT += widgets qml quick
 
 SOURCES += main.cpp
 
+CONFIG += c++11
+
 RESOURCES += \
     qml.qrc
 
