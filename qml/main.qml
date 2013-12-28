@@ -36,7 +36,6 @@ ApplicationWindow {
                 }
                 TextField {
                     id: key
-                    objectName: "key"
                     Layout.fillWidth: true
                     anchors.leftMargin: 4
                     anchors.rightMargin: 4
@@ -47,7 +46,6 @@ ApplicationWindow {
                 }
                 TextField {
                     id: iv
-                    objectName: "iv"
                     Layout.fillWidth: true
                     anchors.leftMargin: 4
                     anchors.rightMargin: 4
@@ -66,13 +64,11 @@ ApplicationWindow {
                 TextArea {
                     wrapMode: TextEdit.WordWrap
                     id: text
-                    objectName: "text"
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
                 TextArea {
                     id: cypherText
-                    objectName: "cypherText"
                     wrapMode: TextEdit.WordWrap
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -82,12 +78,23 @@ ApplicationWindow {
                     objectName: "crypt"
                     text: "Crypt"
                     Layout.fillWidth: true
+
+                    signal crypt(string key, string iv, string text)
+                    signal crypted(string t)
+                    onCrypted: cypherText.text = t
+                    onClicked: crypt.crypt(key.text, iv.text, text.text)
                 }
                 Button {
                     id: decrypt
                     objectName: "decrypt"
                     text: "Decrypt"
                     Layout.fillWidth: true
+
+                    signal decrypt(string key, string iv, string cypherText)
+                    signal decrypted(string t)
+
+                    onDecrypted: text.text = t
+                    onClicked: decrypt.decrypt(key.text, iv.text, cypherText.text)
                 }
             }
         }
