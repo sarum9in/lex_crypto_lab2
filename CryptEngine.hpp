@@ -6,6 +6,13 @@ class CryptEngine: public QObject
 {
     Q_OBJECT
 public:
+    enum ModeOfOperation
+    {
+        ECB,
+        CBC
+    };
+
+public:
     explicit CryptEngine(QObject *parent = 0);
 
 signals:
