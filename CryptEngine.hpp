@@ -13,6 +13,14 @@ signals:
     void decrypted(const QString &t);
 
 public slots:
-    void crypt(const QString &key, const QString &iv, const QString &text);
-    void decrypt(const QString &key, const QString &iv, const QString &cypherText);
+    void crypt(const QString &keyDerivationFunction,
+               const QString &key,
+               const QString &modeOfOperation,
+               const QString &iv,
+               const QString &text);
+    void decrypt(const QString &keyDerivationFunction,
+                 const QString &key,
+                 const QString &modeOfOperation,
+                 const QString &iv,
+                 const QString &cipherText);
 };

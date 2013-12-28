@@ -31,7 +31,6 @@ ApplicationWindow {
                 columns: 2
                 anchors.fill: parent
                 Label {
-                    id: shiftLabel
                     text: "Key"
                 }
                 TextField {
@@ -39,6 +38,17 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     anchors.leftMargin: 4
                     anchors.rightMargin: 4
+                }
+                Label {
+                    text: "Mode of operation"
+                }
+                ComboBox {
+                    id: modeOfOperation
+                    onCurrentIndexChanged: ivLabel.visible = iv.visible = currentIndex
+                    model: [
+                        "ECB",
+                        "CBC"
+                    ]
                 }
                 Label {
                     id: ivLabel
@@ -49,6 +59,17 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     anchors.leftMargin: 4
                     anchors.rightMargin: 4
+                }
+                Label {
+                    text: "Key derivation"
+                }
+                ComboBox {
+                    id: keyDerivationFunction
+                    model: [
+                        "MD5",
+                        "SHA-256",
+                        "SHA-512"
+                    ]
                 }
             }
         }
@@ -68,7 +89,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                 }
                 TextArea {
-                    id: cypherText
+                    id: cipherText
                     wrapMode: TextEdit.WordWrap
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -79,10 +100,19 @@ ApplicationWindow {
                     text: "Crypt"
                     Layout.fillWidth: true
 
-                    signal crypt(string key, string iv, string text)
+                    signal crypt(string keyDerivationFunction,
+                                 string key,
+                                 string modeOfOperation,
+                                 string iv,
+                                 string text)
                     signal crypted(string t)
-                    onCrypted: cypherText.text = t
-                    onClicked: crypt.crypt(key.text, iv.text, text.text)
+                    onCrypted: cipherText.text = t
+                    onClicked: crypt.crypt(
+                                   keyDerivationFunction.currentText,
+                                   key.text,
+                                   modeOfOperation.currentIndex,
+                                   iv.text,
+                                   text.text)
                 }
                 Button {
                     id: decrypt
@@ -90,11 +120,19 @@ ApplicationWindow {
                     text: "Decrypt"
                     Layout.fillWidth: true
 
-                    signal decrypt(string key, string iv, string cypherText)
+                    signal decrypt(string keyDerivationFunction,
+                                   string key,
+                                   string modeOfOperation,
+                                   string iv,
+                                   string cipherText)
                     signal decrypted(string t)
 
                     onDecrypted: text.text = t
-                    onClicked: decrypt.decrypt(key.text, iv.text, cypherText.text)
+                    onClicked: decrypt.decrypt(keyDerivationFunction.currentText,
+                                               key.text,
+                                               modeOfOperation.currentIndex,
+                                               iv.text,
+                                               cipherText.text)
                 }
             }
         }

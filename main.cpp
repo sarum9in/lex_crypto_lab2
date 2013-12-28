@@ -17,11 +17,15 @@ int main(int argc, char *argv[])
     QObject *const crypt = root->findChild<QObject *>("crypt");
     QObject *const decrypt = root->findChild<QObject *>("decrypt");
 
-    QObject::connect(crypt, SIGNAL(crypt(QString,QString,QString)), &cryptEngine, SLOT(crypt(QString,QString,QString)));
-    QObject::connect(&cryptEngine, SIGNAL(crypted(QString)), crypt, SIGNAL(crypted(QString)));
+    QObject::connect(crypt, SIGNAL(crypt(QString,QString,QString,QString,QString)),
+                     &cryptEngine, SLOT(crypt(QString,QString,QString,QString,QString)));
+    QObject::connect(&cryptEngine, SIGNAL(crypted(QString)),
+                     crypt, SIGNAL(crypted(QString)));
 
-    QObject::connect(decrypt, SIGNAL(decrypt(QString,QString,QString)), &cryptEngine, SLOT(decrypt(QString,QString,QString)));
-    QObject::connect(&cryptEngine, SIGNAL(decrypted(QString)), decrypt, SIGNAL(decrypted(QString)));
+    QObject::connect(decrypt, SIGNAL(decrypt(QString,QString,QString,QString,QString)),
+                     &cryptEngine, SLOT(decrypt(QString,QString,QString,QString,QString)));
+    QObject::connect(&cryptEngine, SIGNAL(decrypted(QString)),
+                     decrypt, SIGNAL(decrypted(QString)));
 
     return app.exec();
 }
