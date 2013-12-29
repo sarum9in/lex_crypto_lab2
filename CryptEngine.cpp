@@ -8,6 +8,17 @@ CryptEngine::CryptEngine(QObject *parent):
 {
 }
 
+template<class T>
+T rotr(T x, unsigned int moves)
+{
+    return (x >> moves) | (x << sizeof(T) * 8 - moves);
+}
+template<class T>
+T rotl(T x, unsigned int moves)
+{
+    return (x << moves) | (x >> sizeof(T) * 8 - moves);
+}
+
 static QByteArray derive(const QString &derivationFunction, const QString &text, const int maxSize=0)
 {
     QCryptographicHash::Algorithm algo;
@@ -48,10 +59,57 @@ static CryptEngine::ModeOfOperation parseModeOfOperation(const QString &modeOfOp
         return CryptEngine::CBC;
 }
 
+inline void initialPerm(quint32 &left, quint32 &right)
+{
+    quint32 work;
+
+    work = ((left >> 4) ^ right) & 0x0f0f0f0f;
+    right ^= work;
+    left ^= work << 4;
+    work = ((left >> 16) ^ right) & 0xffff;
+    right ^= work;
+    left ^= work << 16;
+    work = ((right >> 2) ^ left) & 0x33333333;
+    left ^= work;
+    right ^= (work << 2);
+    work = ((right >> 8) ^ left) & 0xff00ff;
+    left ^= work;
+    right ^= (work << 8);
+    right = rotl(right, 1);
+    work = (left ^ right) & 0xaaaaaaaa;
+    left ^= work;
+    right ^= work;
+    left = rotl(left, 1);
+}
+
+inline void finalPerm(quint32 &left, quint32 &right)
+{
+    quint32 work;
+
+    right = rotr(right, 1);
+    work = (left ^ right) & 0xaaaaaaaa;
+    left ^= work;
+    right ^= work;
+    left = rotr(left, 1);
+    work = ((left >> 8) ^ right) & 0xff00ff;
+    right ^= work;
+    left ^= work << 8;
+    work = ((left >> 2) ^ right) & 0x33333333;
+    right ^= work;
+    left ^= work << 2;
+    work = ((right >> 16) ^ left) & 0xffff;
+    left ^= work;
+    right ^= work << 16;
+    work = ((right >> 4) ^ left) & 0x0f0f0f0f;
+    left ^= work;
+    right ^= work << 4;
+}
+
 static void cryptBlock(const char *const key, const char *const src, char *const dst)
 {
-    for (int i = 0; i < 8; ++i)
-        dst[i] = src[i] ^ key[i % 7];
+    quint32 left = *reinterpret_cast<const quint8 *>(src);
+    quint32 right = *reinterpret_cast<const quint8 *>(src + 4);
+    initialPerm(left, right);
 }
 
 static QByteArray crypt(const QByteArray &key,
