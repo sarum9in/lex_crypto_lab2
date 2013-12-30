@@ -110,7 +110,7 @@ ApplicationWindow {
                     onClicked: crypt.crypt(
                                    keyDerivationFunction.currentText,
                                    key.text,
-                                   modeOfOperation.currentIndex,
+                                   modeOfOperation.currentText,
                                    iv.text,
                                    text.text)
                 }
@@ -130,7 +130,7 @@ ApplicationWindow {
                     onDecrypted: text.text = t
                     onClicked: decrypt.decrypt(keyDerivationFunction.currentText,
                                                key.text,
-                                               modeOfOperation.currentIndex,
+                                               modeOfOperation.currentText,
                                                iv.text,
                                                cipherText.text)
                 }
