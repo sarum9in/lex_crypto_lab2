@@ -1,22 +1,14 @@
 #include "CryptEngine.hpp"
 
+#include "RawDes.hpp"
+
 #include <QCryptographicHash>
 #include <QtEndian>
+#include <QVector>
 
 CryptEngine::CryptEngine(QObject *parent):
     QObject(parent)
 {
-}
-
-template<class T>
-T rotr(T x, unsigned int moves)
-{
-    return (x >> moves) | (x << sizeof(T) * 8 - moves);
-}
-template<class T>
-T rotl(T x, unsigned int moves)
-{
-    return (x << moves) | (x >> sizeof(T) * 8 - moves);
 }
 
 static QByteArray derive(const QString &derivationFunction, const QString &text, const int maxSize=0)
@@ -59,57 +51,16 @@ static CryptEngine::ModeOfOperation parseModeOfOperation(const QString &modeOfOp
         return CryptEngine::CBC;
 }
 
-inline void initialPerm(quint32 &left, quint32 &right)
+static void process(
+        RawDes &des,
+        const char *const input,
+        char *const output)
 {
-    quint32 work;
-
-    work = ((left >> 4) ^ right) & 0x0f0f0f0f;
-    right ^= work;
-    left ^= work << 4;
-    work = ((left >> 16) ^ right) & 0xffff;
-    right ^= work;
-    left ^= work << 16;
-    work = ((right >> 2) ^ left) & 0x33333333;
-    left ^= work;
-    right ^= (work << 2);
-    work = ((right >> 8) ^ left) & 0xff00ff;
-    left ^= work;
-    right ^= (work << 8);
-    right = rotl(right, 1);
-    work = (left ^ right) & 0xaaaaaaaa;
-    left ^= work;
-    right ^= work;
-    left = rotl(left, 1);
-}
-
-inline void finalPerm(quint32 &left, quint32 &right)
-{
-    quint32 work;
-
-    right = rotr(right, 1);
-    work = (left ^ right) & 0xaaaaaaaa;
-    left ^= work;
-    right ^= work;
-    left = rotr(left, 1);
-    work = ((left >> 8) ^ right) & 0xff00ff;
-    right ^= work;
-    left ^= work << 8;
-    work = ((left >> 2) ^ right) & 0x33333333;
-    right ^= work;
-    left ^= work << 2;
-    work = ((right >> 16) ^ left) & 0xffff;
-    left ^= work;
-    right ^= work << 16;
-    work = ((right >> 4) ^ left) & 0x0f0f0f0f;
-    left ^= work;
-    right ^= work << 4;
-}
-
-static void cryptBlock(const char *const key, const char *const src, char *const dst)
-{
-    quint32 left = *reinterpret_cast<const quint8 *>(src);
-    quint32 right = *reinterpret_cast<const quint8 *>(src + 4);
-    initialPerm(left, right);
+    quint32 left = *reinterpret_cast<const quint32 *>(input);
+    quint32 right = *reinterpret_cast<const quint32 *>(input + 4);
+    des.RawProcessBlock(left, right);
+    *reinterpret_cast<quint32 *>(output) = left;
+    *reinterpret_cast<quint32 *>(output + 4) = right;
 }
 
 static QByteArray crypt(const QByteArray &key,
@@ -122,6 +73,8 @@ static QByteArray crypt(const QByteArray &key,
     QByteArray result(fullBlocks * 8, '\0');
     QByteArray input(8, '\0');
     QByteArray output(8, '\0');
+    RawDes des;
+    des.RawSetKey(ENCRYPTION, reinterpret_cast<const quint8 *>(key.data()));
     for (int i = 0; i < text.size(); i += 8)
     {
         switch (modeOfOperation)
@@ -135,7 +88,7 @@ static QByteArray crypt(const QByteArray &key,
                 input[k] = iv[k] ^ text[i + k];
             break;
         }
-        cryptBlock(key.data(), input.data(), output.data());
+        process(des, input.data(), output.data());
         switch (modeOfOperation) {
         case CryptEngine::ECB:
         case CryptEngine::CBC:
@@ -147,11 +100,6 @@ static QByteArray crypt(const QByteArray &key,
     return result;
 }
 
-static void decryptBlock(const char *const key, const char *const src, char *const dst)
-{
-    for (int i = 0; i < 8; ++i)
-        dst[i] = src[i] ^ key[i % 7];
-}
 
 static QByteArray decrypt(const QByteArray &key,
                           const CryptEngine::ModeOfOperation &modeOfOperation,
@@ -163,6 +111,8 @@ static QByteArray decrypt(const QByteArray &key,
     QByteArray result(fullBlocks * 8, '\0');
     QByteArray input(8, '\0');
     QByteArray output(8, '\0');
+    RawDes des;
+    des.RawSetKey(DECRYPTION, reinterpret_cast<const quint8 *>(key.data()));
     for (int i = 0; i < cipherText.size(); i += 8)
     {
         switch (modeOfOperation)
@@ -173,7 +123,7 @@ static QByteArray decrypt(const QByteArray &key,
                 input[k] = cipherText[i + k];
             break;
         }
-        decryptBlock(key.data(), input.data(), output.data());
+        process(des, input.data(), output.data());
         switch (modeOfOperation)
         {
         case CryptEngine::ECB:
