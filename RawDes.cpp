@@ -239,7 +239,7 @@ void RawDes::RawProcessBlock(quint32 &l_, quint32 &r_) const
           ^  Spbox[3][(work >> 16) & 0x3f]
           ^  Spbox[1][(work >> 24) & 0x3f];
 
-        work = rotr(l, 4U) ^ kptr[4*i+2];
+        work = rotr(l, 4U) ^ kptr[4 * i + 2];
         r ^= Spbox[6][(work) & 0x3f]
           ^  Spbox[4][(work >> 8) & 0x3f]
           ^  Spbox[2][(work >> 16) & 0x3f]
