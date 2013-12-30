@@ -90,7 +90,7 @@ ApplicationWindow {
                 }
                 TextArea {
                     id: cipherText
-                    wrapMode: TextEdit.WordWrap
+                    wrapMode: TextEdit.WrapAnywhere
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                 }
