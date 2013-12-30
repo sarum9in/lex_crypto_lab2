@@ -69,7 +69,7 @@ static QByteArray crypt(const QByteArray &key,
                         const QByteArray &text)
 {
     Q_ASSERT(text.size() % 8 == 0);
-    Q_ASSERT(key.size() == 7);
+    Q_ASSERT(key.size() == 8);
     const int fullBlocks = text.size() / 8;
     QByteArray result(fullBlocks * 8, '\0');
     QByteArray input(8, '\0');
@@ -108,7 +108,7 @@ static QByteArray decrypt(const QByteArray &key,
                           const QByteArray &cipherText)
 {
     Q_ASSERT(cipherText.size() % 8 == 0);
-    Q_ASSERT(key.size() == 7);
+    Q_ASSERT(key.size() == 8);
     const int fullBlocks = cipherText.size() / 8;
     QByteArray result(fullBlocks * 8, '\0');
     QByteArray input(8, '\0');
@@ -156,7 +156,7 @@ void CryptEngine::crypt(const QString &keyDerivationFunction,
     while (t.size() % 8)
         t.push_back('\0');
     const QByteArray cipherText = ::crypt(
-        derive(keyDerivationFunction, key, 7),
+        derive(keyDerivationFunction, key, 8),
         parseModeOfOperation(modeOfOperation),
         derive(keyDerivationFunction, iv, 8),
         t
@@ -173,7 +173,7 @@ void CryptEngine::decrypt(const QString &keyDerivationFunction,
     if (cipherText.size() < 4)
         emit decrypted("ERROR: too small");
     const QByteArray text = ::decrypt(
-        derive(keyDerivationFunction, key, 7),
+        derive(keyDerivationFunction, key, 8),
         parseModeOfOperation(modeOfOperation),
         derive(keyDerivationFunction, iv, 8),
         QByteArray::fromBase64(cipherText.toUtf8())
