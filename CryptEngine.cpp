@@ -58,7 +58,7 @@ static void process(
 {
     quint32 left = *reinterpret_cast<const quint32 *>(input);
     quint32 right = *reinterpret_cast<const quint32 *>(input + 4);
-    des.RawProcessBlock(left, right);
+    des.ProcessBlock(left, right);
     *reinterpret_cast<quint32 *>(output) = left;
     *reinterpret_cast<quint32 *>(output + 4) = right;
 }

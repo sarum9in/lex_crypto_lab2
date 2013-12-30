@@ -14,6 +14,8 @@ public:
     void RawSetKey(CipherDir direction, const quint8 *userKey);
     void RawProcessBlock(quint32 &l, quint32 &r) const;
 
+    void ProcessBlock(quint32 &l, quint32 &r) const;
+
 protected:
     std::array<quint32, 32> k;
 

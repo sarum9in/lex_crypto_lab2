@@ -253,3 +253,11 @@ void RawDes::RawProcessBlock(quint32 &l_, quint32 &r_) const
 
     l_ = l; r_ = r;
 }
+
+void RawDes::ProcessBlock(quint32 &l, quint32 &r) const
+{
+    initialPerm(l, r);
+    RawProcessBlock(l, r);
+    finalPerm(l, r);
+    std::swap(l, r);
+}
